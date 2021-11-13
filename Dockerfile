@@ -37,6 +37,10 @@ RUN apt-get -yq install --no-install-recommends firefox xdg-utils
 
 # Install curl and additional fonts
 RUN apt-get -yq install curl unzip ttf-mscorefonts-installer
+RUN apt-get -yq install openjdk-8-jre
+RUN apt-get -yq install vim
+RUN apt-get -yq install iputils-ping
+RUN apt-get -yq install openjfx
 
 # Create a dedicated user (ib-tws) for the IB TWS application
 RUN useradd -u ${RUN_USER_UID} -ms /bin/bash ${RUN_USER}
@@ -52,10 +56,15 @@ COPY fonts/* /home/${RUN_USER}/.fonts/
 RUN fc-cache
 
 # Fetch and deploy the install4j package IB makes available
+RUN echo "export INSTALL4J_JAVA_HOME=/usr/lib/jvm/java-8-openjdk-arm64/jre/" > .bashrc
 RUN curl -s -O https://download2.interactivebrokers.com/installers/tws/$version/tws-$version-linux-$arch.sh && \ 
-    chmod +x tws-$version-linux-$arch.sh && \ 
+    chmod +x tws-$version-linux-$arch.sh 
+RUN grep test_jvm * -R -l | xargs sed -i '170s/return/echo ignoring/'
+RUN export INSTALL4J_JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-8-openjdk-arm64/jre/ && \
     ./tws-$version-linux-$arch.sh -q && \
     rm tws-$version-linux-$arch.sh
+RUN cp .install4j tws/.install4j/updater.log
+RUN grep test_jvm * -R -l | xargs sed -i '170s/return/echo ignoring/'
 
 # Add a few variables to ensure memory management in a container works
 # correctly and raise memory limit to 1.5GB.
@@ -83,4 +92,4 @@ EXPOSE 7496
 EXPOSE 7497
 
 # Start TWS
-CMD ["Jts/tws"]
+#CMD ["tws/tws"]
