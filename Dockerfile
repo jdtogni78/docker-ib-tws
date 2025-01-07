@@ -1,5 +1,7 @@
 FROM ubuntu:xenial 
 
+LABEL maintainer="jtogni78"
+
 # version can be stable, latest, or beta; arch can be x64 or x86
 ARG version=latest
 ARG arch=x64
@@ -23,29 +25,31 @@ RUN apt-get -yq install --no-install-recommends libglib2.0-0 libxrandr2 libxiner
 
 # Include libopenjfx libraries directory in ld.so configuration
 # This ensures they are available to the i4j-installed JRE
-RUN echo " \n\
-# JavaFX/OpenJFX 8 \n\
-/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64 \n\
-" > /etc/ld.so.conf.d/amd64-libopenjfx.conf
-RUN ldconfig
+#RUN echo " \n\
+## JavaFX/OpenJFX 8 \n\
+#/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64 \n\
+#" > /etc/ld.so.conf.d/amd64-libopenjfx.conf
+#RUN ldconfig
 
 # Install avcodec and avformat for multimedia support
-RUN apt-get -yq install --no-install-recommends libavformat-ffmpeg56 libavcodec-ffmpeg56
+#RUN apt-get -yq install --no-install-recommends \
+#    libavformat-ffmpeg56 libavcodec-ffmpeg56
 
 # Install a browser and launcher
-RUN apt-get -yq install --no-install-recommends firefox xdg-utils
+#RUN apt-get -yq install --no-install-recommends firefox xdg-utils
 
 # Install curl and additional fonts
 RUN apt-get -yq install curl unzip ttf-mscorefonts-installer
+
 RUN apt-get -yq install openjdk-8-jre
-RUN apt-get -yq install vim
-RUN apt-get -yq install iputils-ping
 RUN apt-get -yq install openjfx
+
+RUN apt-get -yq install vim iputils-ping
 
 # Create a dedicated user (ib-tws) for the IB TWS application
 RUN useradd -u ${RUN_USER_UID} -ms /bin/bash ${RUN_USER}
-RUN adduser ${RUN_USER} audio
-RUN adduser ${RUN_USER} video
+#RUN adduser ${RUN_USER} audio
+#RUN adduser ${RUN_USER} video
 USER ${RUN_USER_UID}
 WORKDIR /home/${RUN_USER}
 
